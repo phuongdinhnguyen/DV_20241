@@ -66,11 +66,8 @@ class driver;
       $display("[%10t] [UART TX] ----- Getting new transaction -----", $time);
 
       tx_item.print_info();
-//       $finish;
 
-      
       parity_bit = 0;
-
       vif.data_bit_num <= tx_item.data_bit_num;
       vif.stop_bit_num <= tx_item.stop_bit_num;
       vif.parity_en    <= tx_item.parity_en;
@@ -80,8 +77,6 @@ class driver;
       @(negedge vif.clk);
       
       $display("[%10t] [UART TX] ----- Start UART TX transaction -----", $time);
-    
-      //tx_item.print_info();
       
       // Start bit
       vif.tx <= 1'b0;

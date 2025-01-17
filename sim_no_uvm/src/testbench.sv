@@ -59,13 +59,8 @@ module tbench_top;
     reset_n = 1;
   end
   
-  initial begin
-//    #10us;
-//     $finish;
-  end
-  
   //enabling the wave dump
   initial begin 
-    $dumpfile("dump.vcd"); $dumpvars;
+    //$dumpfile("dump.vcd"); $dumpvars;
   end
 endmodule
