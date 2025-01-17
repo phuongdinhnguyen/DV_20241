@@ -19,6 +19,7 @@ import uvm_pkg::*;
 `include "uart_basic_test.sv"
 
 module uart_top_testbench;
+  
   uart_intf u_intf();
   
   uart uart_0(
@@ -40,8 +41,7 @@ module uart_top_testbench;
     ,.parity_error(u_intf.parity_error)
   );
 
-  timeunit 1ns;
-  timeprecision 1ns;
+  
 
   logic clk;
   logic reset_n;

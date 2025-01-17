@@ -41,17 +41,17 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
   endfunction
 
   task run_phase(uvm_phase phase);
-    bit_period = 1000000000/uart_cfg.clock_freq; // ns = 10^-9, = 20 ns
-    bit_dly    = (uart_cfg.clock_freq*1.0)/uart_cfg.baud_rate; // divisor * 16
+    bit_period = 1000000000/uart_cfg.clock_freq;  // = 20ns: 10^-9 
+    bit_dly    = (uart_cfg.clock_freq*1.0)/uart_cfg.baud_rate; // Divisor
 
     $display("UART DRIVER: bit_dly = %f", bit_dly);
 
     intf.tx <= 1'b1;
-    @(negedge intf.reset_n); // 1 -> 0
-    @(posedge intf.reset_n); // 0 -> 1
+    @(negedge intf.reset_n); //1 -> 0
+    @(posedge intf.reset_n); // 0 ->1
       
     forever begin
-      seq_item_port.get_next_item(tx_item); // blocking
+      seq_item_port.get_next_item(tx_item);  //blocking 
       parity_bit = 0;
 
       intf.data_bit_num <= tx_item.data_bit_num;
@@ -79,14 +79,15 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
       end
 
       // Parity bit
+      //? check
       if (tx_item.parity_en == 1'b1) begin
         if (~tx_item.parity_type) begin
-          intf.tx <= parity_bit;
-          $display("[%10t] [UART TX] Drive odd parity_bit %0b", $time(), parity_bit);
+          intf.tx <= ~parity_bit;
+          $display("[%10t] [UART TX] Drive odd parity_bit %0b", $time(), ~parity_bit);
         end
         else begin
-          intf.tx <= ~parity_bit;
-          $display("[%10t] [UART TX] Drive even parity_bit %0b", $time(), ~parity_bit);
+          intf.tx <= parity_bit;
+          $display("[%10t] [UART TX] Drive even parity_bit %0b", $time(), parity_bit);
         end
         #(bit_dly*bit_period);
       end
@@ -101,6 +102,7 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
       `uvm_info("uart_tx", "Done rx transaction. Waiting for rx_done...", UVM_MEDIUM)
 
       wait(intf.rx_done);
+      $display("Parity Error: %b", intf.parity_error);
       `uvm_info("uart_tx", "rx_done = 1", UVM_MEDIUM)
       `uvm_info("uart_tx", $sformatf("Data received: %8b", intf.rx_data), UVM_MEDIUM)
       seq_item_port.item_done();
