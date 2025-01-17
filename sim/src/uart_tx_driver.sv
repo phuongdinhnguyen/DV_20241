@@ -41,17 +41,17 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
   endfunction
 
   task run_phase(uvm_phase phase);
-    bit_period = 1000000000/uart_cfg.clock_freq;
-    bit_dly    = (uart_cfg.clock_freq*1.0)/uart_cfg.baud_rate;
+    bit_period = 1000000000/uart_cfg.clock_freq; // ns = 10^-9, = 20 ns
+    bit_dly    = (uart_cfg.clock_freq*1.0)/uart_cfg.baud_rate; // divisor * 16
 
     $display("UART DRIVER: bit_dly = %f", bit_dly);
 
     intf.tx <= 1'b1;
-    @(negedge intf.reset_n);
-    @(posedge intf.reset_n);
+    @(negedge intf.reset_n); // 1 -> 0
+    @(posedge intf.reset_n); // 0 -> 1
       
     forever begin
-      seq_item_port.get_next_item(tx_item);
+      seq_item_port.get_next_item(tx_item); // blocking
       parity_bit = 0;
 
       intf.data_bit_num <= tx_item.data_bit_num;
