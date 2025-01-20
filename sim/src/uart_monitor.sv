@@ -74,7 +74,7 @@ class uart_monitor extends uvm_monitor;
       tx_item.parity_en    = intf.parity_en;
       tx_item.parity_type  = intf.parity_type;
 
-      for (int i = 0; i < get_num_bit(tx_item.data_bit_num); i++) begin
+      for (int i = get_num_bit(tx_item.data_bit_num) - 1; i >= 0 ; i--) begin
         tx_item.tx_serial[i] = intf.tx;
         parity_cal = parity_cal ^ intf.tx;
         #(bit_dly*bit_period);
@@ -96,16 +96,21 @@ class uart_monitor extends uvm_monitor;
       rx_data               = intf.rx_data;
       capture_parity_error  = intf.parity_error;
 
-      // Check parity error
+      $display("-------------------- MONITOR --------------------");
+      //Check parity error
       if (tx_item.parity_en) begin
-        if (capture_parity_bit == parity_cal || capture_parity_error) begin
+        if (capture_parity_bit != parity_cal ) begin //|| capture_parity_error
+          $display("[Monitor] capture_parity_bit: %b, parity_cal: %b", capture_parity_bit, parity_cal);
           $display("[Monitor] Parity error.");
+        end else begin
+          $display("[Monitor] capture_parity_bit: %b, parity_cal: %b", capture_parity_bit, parity_cal);
+          $display("[Monitor] Parity OK .");
         end
       end
       
-      $display("[Monitor] ------ Capture result ------");
+      $display("[Monitor] ------------ Capture result ------------");
       tx_item.print_info();
-      $display("[Monitor] ----------------------------");
+      $display("[Monitor] ----------------------------------------");
     end
 
   endtask
