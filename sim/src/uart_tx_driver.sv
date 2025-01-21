@@ -94,7 +94,7 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
 
       // Stop bit
       intf.tx <= 1'b1;
-      #(bit_dly);
+      #(bit_dly*bit_period);
       if (tx_item.stop_bit_num == 1'b1) begin
         intf.tx <= 1'b1;
         #(bit_dly*bit_period);
@@ -102,8 +102,8 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
       `uvm_info("uart_tx", "Done rx transaction. Waiting for rx_done...", UVM_MEDIUM)
 
       wait(intf.rx_done);
-      $display("Parity Error: %b", intf.parity_error);
-      `uvm_info("uart_tx", "rx_done = 1", UVM_MEDIUM)
+      // $display("Parity Error: %b", intf.parity_error);
+      // `uvm_info("uart_tx", "rx_done = 1", UVM_MEDIUM)
       `uvm_info("uart_tx", $sformatf("Data received: %8b", intf.rx_data), UVM_MEDIUM)
       seq_item_port.item_done();
     end
