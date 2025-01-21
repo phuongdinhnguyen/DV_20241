@@ -18,8 +18,44 @@ class uart_monitor extends uvm_monitor;
 
   uvm_analysis_port #(uart_tx_transaction) uart_tx_analysis_port;
 
+    covergroup uart_coverage;
+    cvp_reset_n: coverpoint intf.reset_n;
+    cvp_data_bit_num: coverpoint tx_item.data_bit_num {
+      bins data_5bits = {2'b00};
+      bins data_6bits = {2'b01};
+      bins data_7bits = {2'b10};
+      bins data_8bits = {2'b11};
+    }
+    cvp_stop_bit_num: coverpoint tx_item.stop_bit_num {
+      bins one_stop_bit = {1'b0};
+      bins two_stop_bits = {1'b1};
+    }
+    cvp_parity_en: coverpoint tx_item.parity_en {
+      bins parity_disabled = {1'b0};
+      bins parity_enabled = {1'b1};
+    }
+    cvp_parity_type: coverpoint tx_item.parity_type {
+      bins even_parity = {1'b0};
+      bins odd_parity = {1'b1};
+    }
+    cvp_rts_n: coverpoint intf.rts_n {
+      bins active = {1'b0};
+      bins inactive = {1'b1};
+    }
+    cvp_rx_done: coverpoint intf.rx_done;
+    cvp_parity_error: coverpoint intf.parity_error {
+      bins parity_error_occurred = {1'b1};
+      bins no_parity_error = {1'b0};
+    }
+
+    cross cvp_parity_en, cvp_parity_type;
+    cross cvp_data_bit_num, cvp_stop_bit_num;
+    cross cvp_rts_n, cvp_rx_done;
+  endgroup
+
   function new(string name="uart_monitor", uvm_component parent);
     super.new(name, parent);
+    uart_coverage = new();
   endfunction : new
 
   function void build_phase(uvm_phase phase);
@@ -65,6 +101,7 @@ class uart_monitor extends uvm_monitor;
 
     forever begin
       // Detect Start bit
+      uart_coverage.sample();
       @(negedge intf.tx);
       #(bit_dly*bit_period);
 
