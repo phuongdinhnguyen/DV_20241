@@ -18,8 +18,20 @@ class uart_monitor extends uvm_monitor;
 
   uvm_analysis_port #(uart_tx_transaction) uart_tx_analysis_port;
 
+
+  covergroup cg_uart();
+    CVP_UART_DATA_BIT_NUM : coverpoint intf.data_bit_num {
+      bins num_data_bit_5 = {2'b00};
+      bins num_data_bit_6 = {2'b01};
+      bins num_data_bit_7 = {2'b10};
+      bins num_data_bit_8 = {2'b11};
+    }
+  endgroup : cg_uart
+
+
   function new(string name="uart_monitor", uvm_component parent);
     super.new(name, parent);
+    cg_uart = new();
   endfunction : new
 
   function void build_phase(uvm_phase phase);
@@ -66,33 +78,39 @@ class uart_monitor extends uvm_monitor;
     forever begin
       // Detect Start bit
       @(negedge intf.tx);
+      // $display("[%10t][Monitor] Start capturing data", $time());
       #(bit_dly*bit_period);
 
+      cg_uart.sample();
+
       // Capture Data bit
+      parity_cal = 0;
+      
       tx_item.data_bit_num = intf.data_bit_num;
       tx_item.stop_bit_num = intf.stop_bit_num;
       tx_item.parity_en    = intf.parity_en;
       tx_item.parity_type  = intf.parity_type;
 
+      #(bit_dly*bit_period/2); // UART: Sampling at 8th BCLK cycle
       for (int i = 0; i < get_num_bit(tx_item.data_bit_num); i++) begin
+        // $display("[%10t][Monitor] Capture bit %0d", $time(), i);
+
         tx_item.tx_serial[i] = intf.tx;
         parity_cal = parity_cal ^ intf.tx;
         #(bit_dly*bit_period);
       end
 
       // Capture Parity bit
+      // $display("[%10t][Monitor] Capture parity bit", $time());
       if (tx_item.parity_en) begin
         capture_parity_bit = intf.tx;
         #(bit_dly*bit_period);
       end
 
       // Capture Stop bit
-      #(bit_dly*bit_period);
-
-      if (tx_item.stop_bit_num == 1'b1)
-        #(bit_dly*bit_period);
-
+      // Wait for rx_done
       wait(intf.rx_done);
+      
       rx_data               = intf.rx_data;
       capture_parity_error  = intf.parity_error;
 
@@ -106,7 +124,7 @@ class uart_monitor extends uvm_monitor;
       $display("[Monitor] ------ Capture result ------");
       tx_item.print_info();
       $display("[Monitor] ----------------------------");
+      // $display("[%10t][Monitor] Capture done", $time());
     end
-
   endtask
 endclass : uart_monitor
