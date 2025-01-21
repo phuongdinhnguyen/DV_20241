@@ -61,7 +61,7 @@ module uart_top_testbench;
   end
 
   initial begin
-    $display("Start UART testbench");
+    $display("------------Start UART testbench------------");
     uvm_config_db#(virtual uart_intf)::set(uvm_root::get(),"","u_intf", u_intf);
 
     run_test("uart_basic_test");

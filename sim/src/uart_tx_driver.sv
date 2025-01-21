@@ -45,7 +45,7 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
     bit_dly    = (uart_cfg.clock_freq*1.0)/uart_cfg.baud_rate; // Divisor
 
     $display("UART DRIVER: bit_dly = %f", bit_dly);
-
+    
     intf.tx <= 1'b1;
     @(negedge intf.reset_n); //1 -> 0
     @(posedge intf.reset_n); // 0 ->1
@@ -72,14 +72,13 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
 
       // Data bit
       for (int i = 0; i < get_num_bit(tx_item.data_bit_num); i++) begin
-        parity_bit = parity_bit ^ tx_item.tx_serial[i];
+        parity_bit = parity_bit ^ tx_item.tx_serial[i];  // XOR 
         intf.tx <= tx_item.tx_serial[i];
         $display("[%10t] [UART TX] Drive bit %0b", $time(), tx_item.tx_serial[i]);
         #(bit_dly*bit_period);
       end
 
       // Parity bit
-      //? check
       if (tx_item.parity_en == 1'b1) begin
         if (~tx_item.parity_type) begin
           intf.tx <= ~parity_bit;
@@ -94,7 +93,7 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
 
       // Stop bit
       intf.tx <= 1'b1;
-      #(bit_dly);
+      #(bit_dly*bit_period);
       if (tx_item.stop_bit_num == 1'b1) begin
         intf.tx <= 1'b1;
         #(bit_dly*bit_period);
@@ -105,6 +104,7 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
       $display("Parity Error: %b", intf.parity_error);
       `uvm_info("uart_tx", "rx_done = 1", UVM_MEDIUM)
       `uvm_info("uart_tx", $sformatf("Data received: %8b", intf.rx_data), UVM_MEDIUM)
+
       seq_item_port.item_done();
     end
 
