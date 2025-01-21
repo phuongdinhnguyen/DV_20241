@@ -23,10 +23,10 @@ class uart_scoreboard extends uvm_scoreboard;
   function void write(uart_tx_transaction tx_item);
   // In thông tin transaction nhận được
     
-    `uvm_info("uart_scoreboard", $sformatf("RECIEVED FROM MONITOR"), UVM_MEDIUM);
-    $display("----------------------- SCOREBOARD -----------------------");
-    tx_item.print_info();
-    $display("----------------------------------------------------------");
+    // `uvm_info("uart_scoreboard", $sformatf("RECIEVED FROM MONITOR"), UVM_MEDIUM);
+    // $display("[----------------------- SCOREBOARD -----------------------]");
+    
+    // $display("----------------------------------------------------------");
 
   endfunction : write
 endclass

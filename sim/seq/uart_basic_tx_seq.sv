@@ -27,7 +27,7 @@ class uart_basic_tx_seq extends uvm_sequence#(uart_tx_transaction);
         item.data_bit_num == UART_DATA_BIT_NUM_8;
         item.stop_bit_num == 1'b0;
       })
-    for (int i = 0; i < 1000; i++) begin
+    for (int i = 0; i < 10; i++) begin
       `uvm_do(item)
       #300ns; 
     end

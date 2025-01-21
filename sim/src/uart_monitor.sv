@@ -104,16 +104,19 @@ class uart_monitor extends uvm_monitor;
     forever begin
       // Detect Start bit
       uart_coverage.sample();
+      parity_cal = 0;
       @(negedge intf.tx);
       #(bit_dly*bit_period);
-
+      
       // Capture Data bit
       tx_item.data_bit_num = intf.data_bit_num;
       tx_item.stop_bit_num = intf.stop_bit_num;
       tx_item.parity_en    = intf.parity_en;
       tx_item.parity_type  = intf.parity_type;
 
-      for (int i = get_num_bit(tx_item.data_bit_num) - 1; i >= 0 ; i--) begin
+      #((bit_dly*bit_period)/2.0);
+
+      for (int i = 0; i < get_num_bit(tx_item.data_bit_num); i++) begin
         tx_item.tx_serial[i] = intf.tx;
         parity_cal = parity_cal ^ intf.tx;
         #(bit_dly*bit_period);
@@ -121,21 +124,18 @@ class uart_monitor extends uvm_monitor;
 
       // Capture Parity bit
       if (tx_item.parity_en) begin
+        if (~tx_item.parity_type) begin
+          parity_cal = ~parity_cal;
+        end 
         capture_parity_bit = intf.tx;
         #(bit_dly*bit_period);
       end
-
-      // Capture Stop bit
-      #(bit_dly*bit_period);
-
-      if (tx_item.stop_bit_num == 1'b1)
-        #(bit_dly*bit_period);
 
       wait(intf.rx_done);
       rx_data               = intf.rx_data;
       capture_parity_error  = intf.parity_error;
 
-      $display("----------------------- MONITOR -----------------------");
+      $display("[----------------------- MONITOR -----------------------]");
       //Check parity error
       if (tx_item.parity_en) begin
         if (capture_parity_bit != parity_cal ) begin //|| capture_parity_error
