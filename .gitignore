@@ -1,3 +1,6 @@
 work/
+ucdb/
+*.mti
+*.mpf
 transcript
 *.wlf
