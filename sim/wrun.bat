@@ -1,4 +1,4 @@
-mkdir -p ucdb
+
 
 vlog +incdir+./seq +incdir+./src +incdir+./test +incdir+../hdl +cover=bcefs -nocoverfec uart_tb.sv
 

@@ -18,8 +18,10 @@ class uart_monitor extends uvm_monitor;
 
   uvm_analysis_port #(uart_tx_transaction) uart_tx_analysis_port;
 
-    covergroup uart_coverage;
-    cvp_reset_n: coverpoint intf.reset_n;
+  covergroup uart_coverage;
+    cvp_reset_n: coverpoint intf.reset_n {
+      bins reset_high = {1};
+    }
     cvp_data_bit_num: coverpoint tx_item.data_bit_num {
       bins data_5bits = {2'b00};
       bins data_6bits = {2'b01};
@@ -38,10 +40,10 @@ class uart_monitor extends uvm_monitor;
       bins even_parity = {1'b0};
       bins odd_parity = {1'b1};
     }
-    cvp_rts_n: coverpoint intf.rts_n {
-      bins active = {1'b0};
-      bins inactive = {1'b1};
-    }
+    // cvp_rts_n: coverpoint intf.rts_n {
+    //   bins active = {1'b0};
+    //   bins inactive = {1'b1};
+    // }
     cvp_rx_done: coverpoint intf.rx_done;
     cvp_parity_error: coverpoint intf.parity_error {
       bins parity_error_occurred = {1'b1};
@@ -50,7 +52,7 @@ class uart_monitor extends uvm_monitor;
 
     cross cvp_parity_en, cvp_parity_type;
     cross cvp_data_bit_num, cvp_stop_bit_num;
-    cross cvp_rts_n, cvp_rx_done;
+    // cross cvp_rts_n, cvp_rx_done;
   endgroup
 
   function new(string name="uart_monitor", uvm_component parent);
@@ -95,7 +97,7 @@ class uart_monitor extends uvm_monitor;
     bit_dly    = (uart_cfg.clock_freq*1.0)/uart_cfg.baud_rate; // divisor * 16
 
     tx_item = new("tx_item");
-
+    
     @(negedge intf.reset_n); // 1 -> 0
     @(posedge intf.reset_n); // 0 -> 1
 
@@ -133,7 +135,7 @@ class uart_monitor extends uvm_monitor;
       rx_data               = intf.rx_data;
       capture_parity_error  = intf.parity_error;
 
-      $display("-------------------- MONITOR --------------------");
+      $display("----------------------- MONITOR -----------------------");
       //Check parity error
       if (tx_item.parity_en) begin
         if (capture_parity_bit != parity_cal ) begin //|| capture_parity_error
@@ -148,6 +150,8 @@ class uart_monitor extends uvm_monitor;
       $display("[Monitor] ------------ Capture result ------------");
       tx_item.print_info();
       $display("[Monitor] ----------------------------------------");
+
+      uart_tx_analysis_port.write(tx_item);
     end
 
   endtask

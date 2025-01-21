@@ -16,6 +16,17 @@ class uart_scoreboard extends uvm_scoreboard;
     uart_analysis_imp = new("uart_analysis_imp", this);
   endfunction
 
-  function void write(uart_tx_transaction trans);
-  endfunction
+  function void connect_phase(uvm_phase phase);
+    super.connect_phase(phase);
+  endfunction : connect_phase
+
+  function void write(uart_tx_transaction tx_item);
+  // In thông tin transaction nhận được
+    
+    `uvm_info("uart_scoreboard", $sformatf("RECIEVED FROM MONITOR"), UVM_MEDIUM);
+    $display("----------------------- SCOREBOARD -----------------------");
+    tx_item.print_info();
+    $display("----------------------------------------------------------");
+
+  endfunction : write
 endclass
