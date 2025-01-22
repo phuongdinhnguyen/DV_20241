@@ -27,9 +27,36 @@ class uart_basic_tx_seq extends uvm_sequence#(uart_tx_transaction);
         item.data_bit_num == UART_DATA_BIT_NUM_8;
         item.stop_bit_num == 1'b0;
       })
-    for (int i = 0; i < 10; i++) begin
+    #300ns;
+    repeat(10) begin
       `uvm_do(item)
-      #300ns; 
+      #300ns;
+    end
+    repeat(20) begin
+      `uvm_do_with(item, {
+        item.parity_en == 1'b1;
+      })
+      #300ns;
+    end
+    repeat(20) begin
+      `uvm_do_with(item, {
+        item.parity_en == 1'b0;
+      })
+      #300ns;
+    end
+    repeat(20) begin
+      `uvm_do_with(item, {
+        item.parity_en == 1'b1;
+        item.parity_type == 1'b0;
+      })
+      #300ns;
+    end
+    repeat(20) begin
+      `uvm_do_with(item, {
+        item.parity_en == 1'b1;
+        item.parity_type == 1'b1;
+      })
+      #300ns;
     end
 
     // #300ns;

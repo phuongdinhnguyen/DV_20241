@@ -63,7 +63,8 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
       @(negedge intf.clk);
 
       `uvm_info("uart_tx", "Start UART TX transaction", UVM_MEDIUM)
-    
+      $display("[------------------------ DRIVER ------------------------]");
+
       tx_item.print_info();
 
       // Start bit
@@ -101,10 +102,9 @@ class uart_tx_driver extends uvm_driver#(uart_tx_transaction);
       `uvm_info("uart_tx", "Done rx transaction. Waiting for rx_done...", UVM_MEDIUM)
 
       wait(intf.rx_done);
-      $display("Parity Error: %b", intf.parity_error);
       `uvm_info("uart_tx", "rx_done = 1", UVM_MEDIUM)
       `uvm_info("uart_tx", $sformatf("Data received: %8b", intf.rx_data), UVM_MEDIUM)
-
+      $display("[---------------------- END DRIVER ----------------------]");
       seq_item_port.item_done();
     end
 

@@ -13,12 +13,12 @@ class uart_tx_transaction extends uvm_sequence_item;
   localparam UART_DATA_BIT_NUM_7 = 2'b10;
   localparam UART_DATA_BIT_NUM_8 = 2'b11;
 
-  constraint default_transaction {
-    // soft data_bit_num == 2'b00;
-    soft stop_bit_num == 1'b0;
-    soft parity_en == 1'b1;
-    // soft parity_type == 1'b0;
-  }
+  // constraint default_transaction {
+  //   soft data_bit_num == 2'b00;
+  //   soft stop_bit_num == 1'b0;
+  //   soft parity_en == 1'b1;
+  //   soft parity_type == 1'b0;
+  // }
 
   function new(string name="uart_tx_transaction");
     super.new(name);
